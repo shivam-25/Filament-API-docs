@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
         <meta
             name="description"
-            content="Documentation for the Kittn API"
+            content="Documentation for the Filament API"
         >
     <title>API Reference</title>
 
@@ -295,7 +295,7 @@
     </script>
   </head>
 
-  <body class="index" data-languages="[&quot;rust&quot;,&quot;java&quot;,&quot;python&quot;,&quot;javascript&quot;]">
+  <body class="index" data-languages="[&quot;python&quot;,&quot;javascript&quot;]">
     <a href="#" id="nav-button">
       <span>
         NAV
@@ -303,10 +303,8 @@
       </span>
     </a>
     <div class="toc-wrapper">
-      <img src="images/logo-1e815a84.png" class="logo" alt="" />
+      <img src="images/logo-7b30e43a.png" class="logo" alt="" />
         <div class="lang-selector">
-              <a href="#" data-language-name="rust">rust</a>
-              <a href="#" data-language-name="java">java</a>
               <a href="#" data-language-name="python">python</a>
               <a href="#" data-language-name="javascript">javascript</a>
         </div>
@@ -319,19 +317,36 @@
             <a href="#introduction" class="toc-h1 toc-link" data-title="Introduction">Introduction</a>
           </li>
           <li>
-            <a href="#authentication" class="toc-h1 toc-link" data-title="Authentication">Authentication</a>
+            <a href="#api-key-setup" class="toc-h1 toc-link" data-title="API Key Setup">API Key Setup</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#via-ui" class="toc-h2 toc-link" data-title="Via UI">Via UI</a>
+                  </li>
+                  <li>
+                    <a href="#via-api" class="toc-h2 toc-link" data-title="Via API">Via API</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#signing-orders" class="toc-h1 toc-link" data-title="Signing Orders">Signing Orders</a>
           </li>
           <li>
             <a href="#filament" class="toc-h1 toc-link" data-title="Filament">Filament</a>
               <ul class="toc-list-h2">
                   <li>
-                    <a href="#get-all-kittens" class="toc-h2 toc-link" data-title="Get All Kittens">Get All Kittens</a>
+                    <a href="#registers-a-new-account" class="toc-h2 toc-link" data-title="Registers a new account.">Registers a new account.</a>
                   </li>
                   <li>
-                    <a href="#get-a-specific-kitten" class="toc-h2 toc-link" data-title="Get a Specific Kitten">Get a Specific Kitten</a>
+                    <a href="#place-order-s" class="toc-h2 toc-link" data-title="Place Order(s)">Place Order(s)</a>
                   </li>
                   <li>
-                    <a href="#delete-a-specific-kitten" class="toc-h2 toc-link" data-title="Delete a Specific Kitten">Delete a Specific Kitten</a>
+                    <a href="#cancel-order-s" class="toc-h2 toc-link" data-title="Cancel Order(s)">Cancel Order(s)</a>
+                  </li>
+                  <li>
+                    <a href="#update-leverage" class="toc-h2 toc-link" data-title="Update Leverage">Update Leverage</a>
+                  </li>
+                  <li>
+                    <a href="#update-isolated-margin" class="toc-h2 toc-link" data-title="Update Isolated margin">Update Isolated margin</a>
                   </li>
               </ul>
           </li>
@@ -340,190 +355,906 @@
           </li>
       </ul>
         <ul class="toc-footer">
-            <li><a href='#'>Sign Up for a Developer Key</a></li>
-            <li><a href='https://github.com/slatedocs/slate'>Documentation Powered by Slate</a></li>
+            <li><a href='#'>Sign Up for a API Key</a></li>
         </ul>
     </div>
     <div class="page-wrapper">
       <div class="dark-box"></div>
       <div class="content">
         <h1 id='introduction'>Introduction</h1>
-<p>Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.</p>
+<p>Welcome to the Filament API documentation! </p>
 
-<p>We have language bindings in Shell, Ruby, Python, and JavaScript! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.</p>
+<p>Filament supports REST and Websocket API.</p>
 
-<p>This example API documentation page was created with <a href="https://github.com/slatedocs/slate">Slate</a>. Feel free to edit it and use it as a base for your own API&#39;s documentation.</p>
-<h1 id='authentication'>Authentication</h1>
+<p>REST API Endpoints:</p>
+
+<p>Mainnet: https://api.filament.finance</p>
+
+<p>Testnet: https://api-testnet.filament.finance</p>
+
+<p>Websocket API Endpoints:</p>
+
+<p>Mainnet: wss://ws.filament.finance</p>
+
+<p>Testnet: wss://ws-testnet.filament.finance</p>
+
+<p>Requests are all JSON objects. 
+Responses are either a JSON object or array.</p>
+<h1 id='api-key-setup'>API Key Setup</h1><h2 id='via-ui'>Via UI</h2><h2 id='via-api'>Via API</h2>
+<p>A new API key can be generated by calling the /register endpoint.</p>
+
+<p>The endpoint requires the following parameters:</p>
+
+<ul>
+<li>account: the account&#39;s Ethereum address</li>
+<li>signing_key: a randomly generated Ethereum address</li>
+<li>expiry: UNIX timestamp in nanoseconds</li>
+<li>account_signature: signature generated using the account&#39;s private key</li>
+<li>signing_key_signature: signature generated using the signing_key&#39;s private key</li>
+</ul>
+
+<p>To generate the signing_key, account_signature and signing_key_signature, you can follow the example code below:</p>
+
+<ol>
+<li>Generate signing_key:</li>
+</ol>
+<div class="highlight"><pre class="highlight javascript tab-javascript"><code><span class="kd">const</span> <span class="nx">signer</span> <span class="o">=</span> <span class="nx">ethers</span><span class="p">.</span><span class="nx">Wallet</span><span class="p">.</span><span class="nx">createRandom</span><span class="p">()</span>
+</code></pre></div>
+<ol>
+<li>Generate account_signature:</li>
+</ol>
+<div class="highlight"><pre class="highlight javascript tab-javascript"><code><span class="c1">// First we hash the register data</span>
+<span class="kd">const</span> <span class="nx">registerHash</span> <span class="o">=</span> <span class="nx">ethers</span><span class="p">.</span><span class="nx">utils</span><span class="p">.</span><span class="nx">_TypedDataEncoder</span><span class="p">.</span><span class="nx">hash</span><span class="p">(</span>
+    <span class="p">{</span>
+      <span class="na">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Filament Mainnet</span><span class="dl">"</span><span class="p">,</span>
+      <span class="na">version</span><span class="p">:</span> <span class="dl">"</span><span class="s2">1</span><span class="dl">"</span><span class="p">,</span>
+      <span class="na">chainId</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="na">Register</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">key</span><span class="dl">"</span><span class="p">,</span> <span class="na">type</span><span class="p">:</span> <span class="dl">"</span><span class="s2">address</span><span class="dl">"</span> <span class="p">},</span>
+        <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">expiry</span><span class="dl">"</span><span class="p">,</span> <span class="na">type</span><span class="p">:</span> <span class="dl">"</span><span class="s2">uint256</span><span class="dl">"</span> <span class="p">},</span>
+      <span class="p">],</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="na">key</span><span class="p">:</span> <span class="k">await</span> <span class="nx">signer</span><span class="p">.</span><span class="nx">getAddress</span><span class="p">(),</span>
+      <span class="na">expiry</span><span class="p">:</span> <span class="nx">ethers</span><span class="p">.</span><span class="nx">constants</span><span class="p">.</span><span class="nx">MaxUint256</span><span class="p">.</span><span class="nx">toString</span><span class="p">(),</span>
+    <span class="p">}</span>
+<span class="p">);</span>
+
+<span class="c1">// Then we sign the hash</span>
+<span class="kd">const</span> <span class="nx">res</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">promisify</span><span class="p">(</span><span class="nx">provider</span><span class="p">.</span><span class="nx">provider</span><span class="p">.</span><span class="nx">sendAsync</span><span class="p">)({</span>
+  <span class="na">method</span><span class="p">:</span> <span class="dl">"</span><span class="s2">eth_sign</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">params</span><span class="p">:</span> <span class="p">[</span><span class="nx">account</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">(),</span> <span class="nx">registerHash</span><span class="p">],</span>
+<span class="p">});</span>
+
+
+<span class="c1">// This is the account_signature</span>
+<span class="kd">const</span> <span class="nx">accountSignature</span> <span class="o">=</span> <span class="nx">res</span><span class="p">.</span><span class="nx">result</span><span class="p">;</span>
+</code></pre></div>
+<ol>
+<li>Generate signing_key_signature:</li>
+</ol>
+<div class="highlight"><pre class="highlight javascript tab-javascript"><code><span class="c1">// This is the signing_key_signature</span>
+<span class="kd">const</span> <span class="nx">signingKeySignature</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">signer</span><span class="p">.</span><span class="nx">_signTypedData</span><span class="p">(</span>
+    <span class="p">{</span>
+      <span class="na">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Filament Mainnet</span><span class="dl">"</span><span class="p">,</span>
+      <span class="na">version</span><span class="p">:</span> <span class="dl">"</span><span class="s2">1</span><span class="dl">"</span><span class="p">,</span>
+      <span class="na">chainId</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="na">SignKey</span><span class="p">:</span> <span class="p">[{</span> <span class="na">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">account</span><span class="dl">"</span><span class="p">,</span> <span class="na">type</span><span class="p">:</span> <span class="dl">"</span><span class="s2">address</span><span class="dl">"</span> <span class="p">}],</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="na">account</span><span class="p">:</span> <span class="nx">your_wallet_address</span>
+    <span class="p">}</span>
+<span class="p">);</span>
+</code></pre></div><h1 id='signing-orders'>Signing Orders</h1>
+<p>To create an order, a signature needs to be generated. This signature allows for the gasless trading experience in Filament. The signature generation used by Filament follows the guideline laid out in the EIP-712 (https://eips.ethereum.org/EIPS/eip-712) . This signing method is widely used and supported in most wallets.</p>
+
 <blockquote>
 <p>To authorize, use this code:</p>
 </blockquote>
-<div class="highlight"><pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
+<div class="highlight"><pre class="highlight python tab-python"><code><span class="kn">from</span> <span class="nn">web3</span> <span class="kn">import</span> <span class="n">Web3</span><span class="p">,</span> <span class="n">EthereumTesterProvider</span>
+<span class="kn">from</span> <span class="nn">web3.auto</span> <span class="kn">import</span> <span class="n">w3</span>
+<span class="kn">from</span> <span class="nn">eth_account.messages</span> <span class="kn">import</span> <span class="n">encode_structured_data</span>
 
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
-</code></pre></div><div class="highlight"><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">kittn</span>
+<span class="c1"># Function to generate a random signing key
+</span><span class="k">def</span> <span class="nf">create_signing_key</span><span class="p">():</span>
+  <span class="k">return</span> <span class="n">w3</span><span class="p">.</span><span class="n">eth</span><span class="p">.</span><span class="n">account</span><span class="p">.</span><span class="n">create</span><span class="p">()</span>
 
-<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="p">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
-</code></pre></div><div class="highlight"><pre class="highlight shell tab-shell"><code><span class="c"># With shell, you can just pass the correct header with each request</span>
-curl <span class="s2">"api_endpoint_here"</span> <span class="se">\</span>
-  <span class="nt">-H</span> <span class="s2">"Authorization: meowmeowmeow"</span>
-</code></pre></div><div class="highlight"><pre class="highlight javascript tab-javascript"><code><span class="kd">const</span> <span class="nx">kittn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">kittn</span><span class="dl">'</span><span class="p">);</span>
+<span class="c1"># Sign the order using EIP-712 structured data
+</span><span class="k">def</span> <span class="nf">sign_order</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">signing_key</span><span class="p">):</span>
+  <span class="n">domain</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">'name'</span><span class="p">:</span> <span class="s">'Filament Mainnet'</span><span class="p">,</span>
+    <span class="s">'version'</span><span class="p">:</span> <span class="s">'1'</span><span class="p">,</span>
+    <span class="s">'chainId'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="p">}</span>
+  <span class="n">types</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">'Order'</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span><span class="s">'name'</span><span class="p">:</span> <span class="s">'account'</span><span class="p">,</span> <span class="s">'type'</span><span class="p">:</span> <span class="s">'address'</span><span class="p">},</span>
+      <span class="p">{</span><span class="s">'name'</span><span class="p">:</span> <span class="s">'indexToken'</span><span class="p">,</span> <span class="s">'type'</span><span class="p">:</span> <span class="s">'address'</span><span class="p">},</span>
+      <span class="p">{</span><span class="s">'name'</span><span class="p">:</span> <span class="s">'isBuy'</span><span class="p">,</span> <span class="s">'type'</span><span class="p">:</span> <span class="s">'bool'</span><span class="p">},</span>
+      <span class="p">{</span><span class="s">'name'</span><span class="p">:</span> <span class="s">'size'</span><span class="p">,</span> <span class="s">'type'</span><span class="p">:</span> <span class="s">'uint256'</span><span class="p">},</span>
+      <span class="p">{</span><span class="s">'name'</span><span class="p">:</span> <span class="s">'reduceOnly'</span><span class="p">,</span> <span class="s">'type'</span><span class="p">:</span> <span class="s">'bool'</span><span class="p">},</span>
+      <span class="p">{</span><span class="s">'name'</span><span class="p">:</span> <span class="s">'referralCode'</span><span class="p">,</span> <span class="s">'type'</span><span class="p">:</span> <span class="s">'string'</span><span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+  <span class="n">message</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">'account'</span><span class="p">:</span> <span class="n">order</span><span class="p">[</span><span class="s">'account'</span><span class="p">],</span>
+    <span class="s">'indexToken'</span><span class="p">:</span> <span class="n">order</span><span class="p">[</span><span class="s">'indexToken'</span><span class="p">],</span>
+    <span class="s">'isBuy'</span><span class="p">:</span> <span class="n">order</span><span class="p">[</span><span class="s">'isBuy'</span><span class="p">],</span>
+    <span class="s">'size'</span><span class="p">:</span> <span class="n">order</span><span class="p">[</span><span class="s">'size'</span><span class="p">],</span>
+    <span class="s">'reduceOnly'</span><span class="p">:</span> <span class="n">order</span><span class="p">[</span><span class="s">'reduceOnly'</span><span class="p">],</span>
+    <span class="s">'referralCode'</span><span class="p">:</span> <span class="n">order</span><span class="p">[</span><span class="s">'referralCode'</span><span class="p">]</span>
+  <span class="p">}</span>
 
-<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">kittn</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="dl">'</span><span class="s1">meowmeowmeow</span><span class="dl">'</span><span class="p">);</span>
+  <span class="n">encoded_data</span> <span class="o">=</span> <span class="n">encode_structured_data</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+  <span class="n">signature</span> <span class="o">=</span> <span class="n">signing_key</span><span class="p">.</span><span class="n">sign_message</span><span class="p">(</span><span class="n">encoded_data</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">signature</span><span class="p">.</span><span class="n">signature</span><span class="p">.</span><span class="nb">hex</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+  <span class="c1"># Create a random signing key
+</span>  <span class="n">signing_key</span> <span class="o">=</span> <span class="n">create_signing_key</span><span class="p">()</span>
+
+  <span class="c1"># Define the order
+</span>  <span class="n">order</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">'account'</span><span class="p">:</span> <span class="s">'0xYourAccountAddress'</span><span class="p">,</span>
+    <span class="s">'indexToken'</span><span class="p">:</span> <span class="s">'BTC|ETH etc.'</span><span class="p">,</span>
+    <span class="s">'isBuy'</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+    <span class="s">'size'</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">Web3</span><span class="p">.</span><span class="n">toWei</span><span class="p">(</span><span class="mf">1.000000</span><span class="p">,</span> <span class="s">'ether'</span><span class="p">)),</span>  <span class="c1"># Example size converted to wei for Ethereum
+</span>    <span class="s">'leverage'</span><span class="p">:</span> <span class="s">'10'</span><span class="p">,</span>
+    <span class="s">'reduceOnly'</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+    <span class="s">'referralCode'</span><span class="p">:</span> <span class="s">'REF12345'</span><span class="p">,</span>
+    <span class="s">'orderType'</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s">'limit'</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">'tif'</span><span class="p">:</span> <span class="s">'Gtc'</span>  <span class="c1"># Example of a limit order type with "Good Till Canceled"
+</span>        <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="c1"># Sign the order
+</span>  <span class="n">signature</span> <span class="o">=</span> <span class="n">sign_order</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">signing_key</span><span class="p">)</span>
+  <span class="k">print</span><span class="p">(</span><span class="s">'Order Signature:'</span><span class="p">,</span> <span class="n">signature</span><span class="p">)</span>
+
+  <span class="c1"># Construct the full order payload
+</span>  <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">'type'</span><span class="p">:</span> <span class="s">"order"</span><span class="p">,</span>
+    <span class="s">'orders'</span><span class="p">:</span> <span class="p">[{</span>
+      <span class="o">**</span><span class="n">order</span><span class="p">,</span>
+      <span class="s">'signature'</span><span class="p">:</span> <span class="n">signature</span><span class="p">,</span>
+      <span class="s">'signingKey'</span><span class="p">:</span> <span class="n">signing_key</span><span class="p">.</span><span class="n">address</span>
+    <span class="p">}]</span>
+  <span class="p">}</span>
+
+  <span class="k">print</span><span class="p">(</span><span class="s">'Payload to send:'</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+  <span class="c1"># Here you would implement the logic to send the payload to your off-chain order book via REST API or similar
+</span>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">'__main__'</span><span class="p">:</span>
+  <span class="n">main</span><span class="p">()</span>
+
+</code></pre></div><div class="highlight"><pre class="highlight javascript tab-javascript"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">ethers</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">'</span><span class="s1">ethers</span><span class="dl">'</span><span class="p">;</span>
+
+<span class="k">async</span> <span class="kd">function</span> <span class="nx">getProvider</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nb">window</span><span class="p">.</span><span class="nx">ethereum</span> <span class="o">!==</span> <span class="dl">'</span><span class="s1">undefined</span><span class="dl">'</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">await</span> <span class="nb">window</span><span class="p">.</span><span class="nx">ethereum</span><span class="p">.</span><span class="nx">request</span><span class="p">({</span> <span class="na">method</span><span class="p">:</span> <span class="dl">'</span><span class="s1">eth_requestAccounts</span><span class="dl">'</span> <span class="p">});</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nx">ethers</span><span class="p">.</span><span class="nx">providers</span><span class="p">.</span><span class="nx">Web3Provider</span><span class="p">(</span><span class="nb">window</span><span class="p">.</span><span class="nx">ethereum</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="dl">"</span><span class="s2">Ethereum provider not found</span><span class="dl">"</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Generate a separate signing key</span>
+<span class="kd">function</span> <span class="nx">createSigningKey</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">ethers</span><span class="p">.</span><span class="nx">Wallet</span><span class="p">.</span><span class="nx">createRandom</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="k">async</span> <span class="kd">function</span> <span class="nx">signOrder</span><span class="p">(</span><span class="nx">order</span><span class="p">,</span> <span class="nx">signingKey</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">domain</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="na">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Filament Mainnet</span><span class="dl">"</span><span class="p">,</span>
+        <span class="na">version</span><span class="p">:</span> <span class="dl">"</span><span class="s2">1</span><span class="dl">"</span><span class="p">,</span>
+        <span class="na">chainId</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>  <span class="c1">// Adjust based on your network (Ethereum Mainnet is 1)</span>
+    <span class="p">};</span>
+
+    <span class="kd">const</span> <span class="nx">types</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="na">Order</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">account</span><span class="dl">"</span><span class="p">,</span> <span class="na">type</span><span class="p">:</span> <span class="dl">"</span><span class="s2">address</span><span class="dl">"</span> <span class="p">},</span>
+            <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">indexToken</span><span class="dl">"</span><span class="p">,</span> <span class="na">type</span><span class="p">:</span> <span class="dl">"</span><span class="s2">string</span><span class="dl">"</span> <span class="p">},</span>
+            <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">isBuy</span><span class="dl">"</span><span class="p">,</span> <span class="na">type</span><span class="p">:</span> <span class="dl">"</span><span class="s2">bool</span><span class="dl">"</span> <span class="p">},</span>
+            <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">size</span><span class="dl">"</span><span class="p">,</span> <span class="na">type</span><span class="p">:</span> <span class="dl">"</span><span class="s2">uint256</span><span class="dl">"</span> <span class="p">},</span>
+            <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">reduceOnly</span><span class="dl">"</span><span class="p">,</span> <span class="na">type</span><span class="p">:</span> <span class="dl">"</span><span class="s2">bool</span><span class="dl">"</span> <span class="p">},</span>
+            <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">referralCode</span><span class="dl">"</span><span class="p">,</span> <span class="na">type</span><span class="p">:</span> <span class="dl">"</span><span class="s2">string</span><span class="dl">"</span> <span class="p">}</span>
+        <span class="p">]</span>
+    <span class="p">};</span>
+
+    <span class="kd">const</span> <span class="nx">value</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="na">account</span><span class="p">:</span> <span class="nx">order</span><span class="p">.</span><span class="nx">account</span><span class="p">,</span>
+        <span class="na">indexToken</span><span class="p">:</span> <span class="nx">order</span><span class="p">.</span><span class="nx">indexToken</span><span class="p">,</span>
+        <span class="na">isBuy</span><span class="p">:</span> <span class="nx">order</span><span class="p">.</span><span class="nx">isBuy</span><span class="p">,</span>
+        <span class="na">size</span><span class="p">:</span> <span class="nx">ethers</span><span class="p">.</span><span class="nx">utils</span><span class="p">.</span><span class="nx">parseUnits</span><span class="p">(</span><span class="nx">order</span><span class="p">.</span><span class="nx">size</span><span class="p">.</span><span class="nx">toString</span><span class="p">(),</span> <span class="mi">18</span><span class="p">),</span> <span class="c1">// Assuming 18 decimal precision</span>
+        <span class="na">reduceOnly</span><span class="p">:</span> <span class="nx">order</span><span class="p">.</span><span class="nx">reduceOnly</span><span class="p">,</span>
+        <span class="na">referralCode</span><span class="p">:</span> <span class="nx">order</span><span class="p">.</span><span class="nx">referralCode</span><span class="p">,</span>
+    <span class="p">};</span>
+
+    <span class="c1">// Signing the immutable parts of the order with the signing key</span>
+    <span class="kd">const</span> <span class="nx">signature</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">signingKey</span><span class="p">.</span><span class="nx">_signTypedData</span><span class="p">(</span><span class="nx">domain</span><span class="p">,</span> <span class="nx">types</span><span class="p">,</span> <span class="nx">value</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">signature</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">async</span> <span class="kd">function</span> <span class="nx">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">provider</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">getProvider</span><span class="p">();</span>
+    <span class="kd">const</span> <span class="nx">userSigner</span> <span class="o">=</span> <span class="nx">provider</span><span class="p">.</span><span class="nx">getSigner</span><span class="p">();</span>
+    <span class="kd">const</span> <span class="nx">signingKey</span> <span class="o">=</span> <span class="nx">createSigningKey</span><span class="p">();</span> <span class="c1">// This creates a new random wallet for signing purposes</span>
+
+    <span class="kd">const</span> <span class="nx">order</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="na">account</span><span class="p">:</span> <span class="dl">'</span><span class="s1">0xYourAccountAddress</span><span class="dl">'</span>
+        <span class="na">indexToken</span><span class="p">:</span> <span class="dl">'</span><span class="s1">BTC|ETH</span><span class="dl">'</span><span class="p">,</span>
+        <span class="na">isBuy</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="na">size</span><span class="p">:</span> <span class="dl">'</span><span class="s1">1.000000</span><span class="dl">'</span><span class="p">,</span>  <span class="c1">// Example size with up to 6 decimal places</span>
+        <span class="na">leverage</span><span class="p">:</span> <span class="dl">'</span><span class="s1">10</span><span class="dl">'</span><span class="p">,</span>    <span class="c1">// Example leverage</span>
+        <span class="na">reduceOnly</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+        <span class="na">referralCode</span><span class="p">:</span> <span class="dl">'</span><span class="s1">REF12345</span><span class="dl">'</span><span class="p">,</span>
+        <span class="na">orderType</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">limit</span><span class="p">:</span> <span class="p">{</span>
+                <span class="na">tif</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Gtc</span><span class="dl">'</span>  <span class="c1">// Example of a limit order type with "Good Till Canceled"</span>
+            <span class="p">},</span>
+            <span class="c1">// Uncomment if using a trigger order type</span>
+            <span class="c1">// trigger: {</span>
+            <span class="c1">//     triggerPrice: '500.000000',</span>
+            <span class="c1">//     stopLossPrice: '450.000000',</span>
+            <span class="c1">//     takeProfitPrice: '550.000000',</span>
+            <span class="c1">//     isMarket: false,</span>
+            <span class="c1">//     tpsl: 'both'</span>
+            <span class="c1">// }</span>
+        <span class="p">}</span>
+    <span class="p">};</span>
+
+    <span class="kd">const</span> <span class="nx">signature</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">signOrder</span><span class="p">(</span><span class="nx">order</span><span class="p">,</span> <span class="nx">signingKey</span><span class="p">);</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">Order Signature:</span><span class="dl">'</span><span class="p">,</span> <span class="nx">signature</span><span class="p">);</span>
+
+    <span class="c1">// Construct the full order payload</span>
+    <span class="kd">const</span> <span class="nx">payload</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="na">type</span><span class="p">:</span> <span class="dl">"</span><span class="s2">order</span><span class="dl">"</span><span class="p">,</span>
+        <span class="na">orders</span><span class="p">:</span> <span class="p">[{</span>
+            <span class="p">...</span><span class="nx">order</span><span class="p">,</span>
+            <span class="na">signature</span><span class="p">:</span> <span class="nx">signature</span><span class="p">,</span>
+            <span class="na">signingKey</span><span class="p">:</span> <span class="nx">signingKey</span><span class="p">.</span><span class="nx">address</span>
+        <span class="p">}]</span>
+    <span class="p">};</span>
+
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">Payload to send:</span><span class="dl">'</span><span class="p">,</span> <span class="nx">payload</span><span class="p">);</span>
+    <span class="c1">// Here you would send the payload to your off-chain order book via REST API or similar</span>
+<span class="p">}</span>
+
+<span class="nx">main</span><span class="p">();</span>
 </code></pre></div>
-<blockquote>
-<p>Make sure to replace <code>meowmeowmeow</code> with your API key.</p>
-</blockquote>
-
-<p>Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our <a href="http://example.com/developers">developer portal</a>.</p>
-
-<p>Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:</p>
-
-<p><code>Authorization: meowmeowmeow</code></p>
-
 <aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
+The signature generated for order submission is different from the signature for authentication.
 </aside>
-<h1 id='filament'>Filament</h1><h2 id='get-all-kittens'>Get All Kittens</h2><div class="highlight"><pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
+<h1 id='filament'>Filament</h1><h2 id='registers-a-new-account'>Registers a new account.</h2><div class="highlight"><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">time</span>
 
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="p">.</span><span class="nf">kittens</span><span class="p">.</span><span class="nf">get</span>
-</code></pre></div><div class="highlight"><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">kittn</span>
+<span class="c1"># Suppose this is the user's Ethereum address and a signing key address
+</span><span class="n">account</span> <span class="o">=</span> <span class="s">'0x123abc...'</span>  <span class="c1"># Replace with actual Ethereum address
+</span><span class="n">signing_key</span> <span class="o">=</span> <span class="s">'0x456def...'</span>  <span class="c1"># Replace with the Ethereum address of the signing key
+# UNIX timestamp for 24 hours from now
+</span><span class="n">expiry</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="p">.</span><span class="n">time</span><span class="p">())</span> <span class="o">+</span> <span class="p">(</span><span class="mi">24</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+<span class="c1"># Placeholder signatures, in practice these would be obtained by signing the transaction
+</span><span class="n">account_signature</span> <span class="o">=</span> <span class="s">'0x789ghi...'</span>  <span class="c1"># Replace with the actual EIP-712 signature of the account
+</span><span class="n">signing_key_signature</span> <span class="o">=</span> <span class="s">'0x101jkl...'</span>  <span class="c1"># Replace with the actual EIP-712 signature of the signing key
+</span>
+<span class="n">url</span> <span class="o">=</span> <span class="s">"https://api.aevo.xyz/register"</span>
 
-<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="p">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="p">.</span><span class="n">kittens</span><span class="p">.</span><span class="n">get</span><span class="p">()</span>
-</code></pre></div><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="s2">"http://example.com/api/kittens"</span> <span class="se">\</span>
-  <span class="nt">-H</span> <span class="s2">"Authorization: meowmeowmeow"</span>
-</code></pre></div><div class="highlight"><pre class="highlight javascript tab-javascript"><code><span class="kd">const</span> <span class="nx">kittn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">kittn</span><span class="dl">'</span><span class="p">);</span>
+<span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s">"account"</span><span class="p">:</span> <span class="n">account</span><span class="p">,</span>
+  <span class="s">"signing_key"</span><span class="p">:</span> <span class="n">signing_key</span><span class="p">,</span>
+  <span class="s">"expiry"</span><span class="p">:</span> <span class="n">expiry</span><span class="p">,</span>
+  <span class="s">"account_signature"</span><span class="p">:</span> <span class="n">account_signature</span><span class="p">,</span>
+  <span class="s">"signing_key_signature"</span><span class="p">:</span> <span class="n">signing_key_signature</span><span class="p">,</span>
+  <span class="s">"referral_code"</span><span class="p">:</span> <span class="s">"your-referral-code"</span>  <span class="c1"># Replace with the actual referral code
+</span><span class="p">}</span>
+<span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s">"accept"</span><span class="p">:</span> <span class="s">"application/json"</span><span class="p">,</span>
+  <span class="s">"content-type"</span><span class="p">:</span> <span class="s">"application/json"</span>
+<span class="p">}</span>
 
-<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">kittn</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="dl">'</span><span class="s1">meowmeowmeow</span><span class="dl">'</span><span class="p">);</span>
-<span class="kd">let</span> <span class="nx">kittens</span> <span class="o">=</span> <span class="nx">api</span><span class="p">.</span><span class="nx">kittens</span><span class="p">.</span><span class="kd">get</span><span class="p">();</span>
-</code></pre></div>
-<blockquote>
-<p>The above command returns JSON structured like this:</p>
-</blockquote>
-<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
-  </span><span class="p">{</span><span class="w">
-    </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Fluffums"</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"breed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"calico"</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"fluffiness"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"cuteness"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="p">{</span><span class="w">
-    </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Max"</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"breed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unknown"</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"fluffiness"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w">
-    </span><span class="nl">"cuteness"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">]</span><span class="w">
-</span></code></pre></div>
-<p>This endpoint retrieves all kittens.</p>
-<h3 id='http-request'>HTTP Request</h3>
-<p><code>GET http://example.com/api/kittens</code></p>
-<h3 id='query-parameters'>Query Parameters</h3>
-<table><thead>
-<tr>
-<th>Parameter</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>include_cats</td>
-<td>false</td>
-<td>If set to true, the result will also include cats.</td>
-</tr>
-<tr>
-<td>available</td>
-<td>true</td>
-<td>If set to false, the result will include kittens that have already been adopted.</td>
-</tr>
-</tbody></table>
+<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
 
-<aside class="success">
-Remember — a happy kitten is an authenticated kitten!
-</aside>
-<h2 id='get-a-specific-kitten'>Get a Specific Kitten</h2><div class="highlight"><pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
+</code></pre></div><div class="highlight"><pre class="highlight javascript tab-javascript"><code><span class="kd">const</span> <span class="nx">ethers</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">ethers</span><span class="dl">'</span><span class="p">);</span>
 
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="p">.</span><span class="nf">kittens</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</code></pre></div><div class="highlight"><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">kittn</span>
+<span class="k">async</span> <span class="kd">function</span> <span class="nx">registerAccount</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// Suppose this is the user's Ethereum address and a signing key address</span>
+    <span class="kd">const</span> <span class="nx">account</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">0x123abc...</span><span class="dl">'</span><span class="p">;</span>  <span class="c1">// Replace with actual Ethereum address</span>
+    <span class="kd">const</span> <span class="nx">signingKey</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">0x456def...</span><span class="dl">'</span><span class="p">;</span>  <span class="c1">// Replace with the Ethereum address of the signing key</span>
+    <span class="c1">// UNIX timestamp for 24 hours from now</span>
+    <span class="kd">const</span> <span class="nx">expiry</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">24</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span><span class="p">);</span>
+    <span class="c1">// Placeholder signatures, in practice these would be obtained by signing the transaction</span>
+    <span class="kd">const</span> <span class="nx">accountSignature</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">0x789ghi...</span><span class="dl">'</span><span class="p">;</span>  <span class="c1">// Replace with the actual EIP-712 signature of the account</span>
+    <span class="kd">const</span> <span class="nx">signingKeySignature</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">0x101jkl...</span><span class="dl">'</span><span class="p">;</span>  <span class="c1">// Replace with the actual EIP-712 signature of the signing key</span>
 
-<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="p">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="p">.</span><span class="n">kittens</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</code></pre></div><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="s2">"http://example.com/api/kittens/2"</span> <span class="se">\</span>
-  <span class="nt">-H</span> <span class="s2">"Authorization: meowmeowmeow"</span>
-</code></pre></div><div class="highlight"><pre class="highlight javascript tab-javascript"><code><span class="kd">const</span> <span class="nx">kittn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">kittn</span><span class="dl">'</span><span class="p">);</span>
+    <span class="kd">const</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="na">method</span><span class="p">:</span> <span class="dl">'</span><span class="s1">POST</span><span class="dl">'</span><span class="p">,</span>
+      <span class="na">headers</span><span class="p">:</span> <span class="p">{</span> <span class="na">accept</span><span class="p">:</span> <span class="dl">'</span><span class="s1">application/json</span><span class="dl">'</span><span class="p">,</span> <span class="dl">'</span><span class="s1">content-type</span><span class="dl">'</span><span class="p">:</span> <span class="dl">'</span><span class="s1">application/json</span><span class="dl">'</span> <span class="p">},</span>
+      <span class="na">body</span><span class="p">:</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+        <span class="na">account</span><span class="p">:</span> <span class="nx">account</span><span class="p">,</span>
+        <span class="na">signing_key</span><span class="p">:</span> <span class="nx">signingKey</span><span class="p">,</span>
+        <span class="na">expiry</span><span class="p">:</span> <span class="nx">expiry</span><span class="p">,</span>
+        <span class="na">account_signature</span><span class="p">:</span> <span class="nx">accountSignature</span><span class="p">,</span>
+        <span class="na">signing_key_signature</span><span class="p">:</span> <span class="nx">signingKeySignature</span><span class="p">,</span>
+        <span class="na">referral_code</span><span class="p">:</span> <span class="dl">'</span><span class="s1">your-referral-code</span><span class="dl">'</span>  <span class="c1">// Replace with the actual referral code</span>
+      <span class="p">})</span>
+    <span class="p">};</span>
 
-<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">kittn</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="dl">'</span><span class="s1">meowmeowmeow</span><span class="dl">'</span><span class="p">);</span>
-<span class="kd">let</span> <span class="nx">max</span> <span class="o">=</span> <span class="nx">api</span><span class="p">.</span><span class="nx">kittens</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+    <span class="nx">fetch</span><span class="p">(</span><span class="dl">'</span><span class="s1">https://api.aevo.xyz/register</span><span class="dl">'</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">response</span> <span class="o">=&gt;</span> <span class="nx">response</span><span class="p">.</span><span class="nx">json</span><span class="p">())</span>
+      <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">response</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">response</span><span class="p">))</span>
+      <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">err</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="nx">registerAccount</span><span class="p">();</span>
+
 </code></pre></div>
 <blockquote>
 <p>The above command returns JSON structured like this:</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Max"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"breed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unknown"</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"fluffiness"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"cuteness"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="w">
+  </span><span class="nl">"success"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"signing_keys"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"signing_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0xE9b3a48d15BE316A8e34FAd53fFDFDddf0C3D24b"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"expiry"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1680249600000000000"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"created_timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1680249600000000000"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"api_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"URPtt6eNCXgL8ERuchphUretdaga2smF"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"api_secret"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0140af7046a63530fc4bd319823d6eee98086ef0d446584b42f68b640b60c457"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"read_only"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
-<p>This endpoint retrieves a specific kitten.</p>
+<p>This endpoint register&#39;s a new user.</p>
+<h3 id='http-request'>HTTP Request</h3>
+<p><code>GET https://api.filament.finance/register</code></p>
+<h3 id='url-payload'>URL Payload</h3>
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>account</code></td>
+<td>Account&#39;s Ethereum address.</td>
+</tr>
+<tr>
+<td><code>signing_key</code></td>
+<td>Ethereum address of the signing key.</td>
+</tr>
+<tr>
+<td><code>expiry</code></td>
+<td>Signing key expiry in UNIX timestamp in seconds.</td>
+</tr>
+<tr>
+<td><code>account_signature</code></td>
+<td>Hash of EIP-712 signature signed by the account.</td>
+</tr>
+<tr>
+<td><code>signing_key_signature</code></td>
+<td>Hash of EIP-712 signature signed by the signing key.</td>
+</tr>
+<tr>
+<td><code>referral_code</code></td>
+<td>Referral Code (username of referrer) of the new account registration.</td>
+</tr>
+</tbody></table>
+<h2 id='place-order-s'>Place Order(s)</h2><div class="highlight"><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">json</span>
 
-<aside class="warning">Inside HTML code blocks like this one, you can't use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside>
+<span class="c1"># Example payload based on the structure you provided
+</span><span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s">"type"</span><span class="p">:</span> <span class="s">"order"</span><span class="p">,</span>
+  <span class="s">"orders"</span><span class="p">:</span> <span class="p">[{</span>
+    <span class="s">"account"</span><span class="p">:</span> <span class="s">"0xYourEthereumAddress"</span><span class="p">,</span>
+    <span class="s">"indexToken"</span><span class="p">:</span> <span class="s">"0xTheTokenAddress"</span><span class="p">,</span>
+    <span class="s">"isBuy"</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+    <span class="s">"size"</span><span class="p">:</span> <span class="s">"1.000000"</span><span class="p">,</span>
+    <span class="s">"leverage"</span><span class="p">:</span> <span class="s">"10"</span><span class="p">,</span>
+    <span class="s">"reduceOnly"</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+    <span class="s">"referralCode"</span><span class="p">:</span> <span class="s">"YourReferralCode"</span><span class="p">,</span>
+    <span class="s">"orderType"</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s">"limit"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">"tif"</span><span class="p">:</span> <span class="s">"Gtc"</span>
+      <span class="p">}</span>
+      <span class="c1"># include 'trigger' details if it's a trigger order
+</span>    <span class="p">}</span>
+  <span class="p">}],</span>
+  <span class="s">"signature"</span><span class="p">:</span> <span class="s">"0xYourOrderSignature"</span>
+<span class="p">}</span>
+
+<span class="c1"># Set up the headers
+</span><span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s">"accept"</span><span class="p">:</span> <span class="s">"application/json"</span><span class="p">,</span>
+  <span class="s">"content-type"</span><span class="p">:</span> <span class="s">"application/json"</span>
+<span class="p">}</span>
+
+<span class="c1"># Make the POST request
+</span><span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="s">'https://api.filament.finance/orders'</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">json</span><span class="p">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">payload</span><span class="p">),</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+
+<span class="c1"># Print the response from the server
+</span><span class="k">print</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">text</span><span class="p">)</span>
+</code></pre></div><div class="highlight"><pre class="highlight javascript tab-javascript"><code><span class="kd">const</span> <span class="nx">fetch</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">node-fetch</span><span class="dl">'</span><span class="p">);</span> <span class="c1">// If you're using Node.js; not needed for browsers</span>
+
+<span class="c1">// Example payload based on the structure you provided</span>
+<span class="kd">const</span> <span class="nx">payload</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="dl">"</span><span class="s2">type</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">order</span><span class="dl">"</span><span class="p">,</span>
+    <span class="dl">"</span><span class="s2">orders</span><span class="dl">"</span><span class="p">:</span> <span class="p">[{</span>
+        <span class="dl">"</span><span class="s2">account</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">0xYourEthereumAddress</span><span class="dl">"</span><span class="p">,</span>
+        <span class="dl">"</span><span class="s2">indexToken</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">0xTheTokenAddress</span><span class="dl">"</span><span class="p">,</span>
+        <span class="dl">"</span><span class="s2">isBuy</span><span class="dl">"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="dl">"</span><span class="s2">size</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">1.000000</span><span class="dl">"</span><span class="p">,</span>
+        <span class="dl">"</span><span class="s2">leverage</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">10</span><span class="dl">"</span><span class="p">,</span>
+        <span class="dl">"</span><span class="s2">reduceOnly</span><span class="dl">"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+        <span class="dl">"</span><span class="s2">referralCode</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">YourReferralCode</span><span class="dl">"</span><span class="p">,</span>
+        <span class="dl">"</span><span class="s2">orderType</span><span class="dl">"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="dl">"</span><span class="s2">limit</span><span class="dl">"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="dl">"</span><span class="s2">tif</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Gtc</span><span class="dl">"</span>
+            <span class="p">}</span>
+            <span class="c1">// include 'trigger' details if it's a trigger order</span>
+        <span class="p">}</span>
+    <span class="p">}],</span>
+    <span class="dl">"</span><span class="s2">signature</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">0xYourOrderSignature</span><span class="dl">"</span>
+<span class="p">};</span>
+
+<span class="c1">// Set up the headers</span>
+<span class="kd">const</span> <span class="nx">headers</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="dl">"</span><span class="s2">accept</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">application/json</span><span class="dl">"</span><span class="p">,</span>
+    <span class="dl">"</span><span class="s2">content-type</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">application/json</span><span class="dl">"</span>
+<span class="p">};</span>
+
+<span class="c1">// Make the POST request</span>
+<span class="nx">fetch</span><span class="p">(</span><span class="dl">'</span><span class="s1">https://api.filament.finance/orders</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span>
+    <span class="na">method</span><span class="p">:</span> <span class="dl">'</span><span class="s1">POST</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">headers</span><span class="p">:</span> <span class="nx">headers</span><span class="p">,</span>
+    <span class="na">body</span><span class="p">:</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">payload</span><span class="p">)</span>
+<span class="p">})</span>
+<span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">response</span> <span class="o">=&gt;</span> <span class="nx">response</span><span class="p">.</span><span class="nx">json</span><span class="p">())</span>
+<span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">data</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">))</span>
+<span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="dl">'</span><span class="s1">Error:</span><span class="dl">'</span><span class="p">,</span> <span class="nx">err</span><span class="p">));</span>
+
+</code></pre></div>
+<blockquote>
+<p>The above code returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="s2">"ok"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"response"</span><span class="p">:{</span><span class="w">
+    </span><span class="nl">"type"</span><span class="p">:</span><span class="s2">"order"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"orders"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"orderId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Unique Identifier"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"account"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Ethereum Address"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"indexToken"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Token Identifier"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"isBuy"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="err">or</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"size"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Decimal Value"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"leverage"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Decimal Value"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"reduceOnly"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="err">or</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"referralCode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Referral Code"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"orderType"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"limit"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"tif"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Alo"</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">"Ioc"</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="s2">"Gtc"</span><span class="w">
+          </span><span class="p">}</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>This endpoint post orders to filament.</p>
 <h3 id='http-request-2'>HTTP Request</h3>
-<p><code>GET http://example.com/kittens/&lt;ID&gt;</code></p>
+<p><code>POST https://api.filament.finance/exchange</code></p>
+<h3 id='query-payload'>Query Payload</h3>
+<table><thead>
+<tr>
+<th>Payload</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>type</code></td>
+<td>String</td>
+<td>Action to place orders to orderbook.</td>
+</tr>
+<tr>
+<td><code>account</code></td>
+<td>String</td>
+<td>The Ethereum address of the user making the order.</td>
+</tr>
+<tr>
+<td><code>indexToken</code></td>
+<td>String</td>
+<td>The identifier for the token being traded.</td>
+</tr>
+<tr>
+<td><code>isBuy</code></td>
+<td>Boolean</td>
+<td>Set to <code>true</code> if the order is a buy order; <code>false</code> if it is a sell order.</td>
+</tr>
+<tr>
+<td><code>size</code></td>
+<td>Decimal</td>
+<td>The size of the order, supporting up to 6 decimal places.</td>
+</tr>
+<tr>
+<td><code>leverage</code></td>
+<td>Decimal</td>
+<td>The leverage for the order, e.g., <code>10</code> for 10x leverage.</td>
+</tr>
+<tr>
+<td><code>reduceOnly</code></td>
+<td>Boolean</td>
+<td>If <code>true</code>, the order will only reduce a position.</td>
+</tr>
+<tr>
+<td><code>referralCode</code></td>
+<td>String</td>
+<td>A code that attributes the new account registration to the referrer.</td>
+</tr>
+<tr>
+<td><code>orderType.limit.tif</code></td>
+<td>String</td>
+<td>For limit orders, specifies the time in force: <code>Alo</code>, <code>Ioc</code>, or <code>Gtc</code>.</td>
+</tr>
+<tr>
+<td><code>orderType.trigger.triggerPrice</code></td>
+<td>Decimal</td>
+<td>For trigger orders, the price at which the order is triggered.</td>
+</tr>
+<tr>
+<td><code>orderType.trigger.stopLossPrice</code></td>
+<td>Decimal</td>
+<td>Optional. For trigger orders, the price to set a stop loss.</td>
+</tr>
+<tr>
+<td><code>orderType.trigger.takeProfitPrice</code></td>
+<td>Decimal</td>
+<td>Optional. For trigger orders, the price to take profit.</td>
+</tr>
+<tr>
+<td><code>orderType.trigger.isMarket</code></td>
+<td>Boolean</td>
+<td>Determines if the triggered order should be executed as a market order.</td>
+</tr>
+<tr>
+<td><code>orderType.trigger.tpsl</code></td>
+<td>String</td>
+<td>Specifies the type of trigger: <code>tp</code> for take profit, <code>sl</code> for stop loss, <code>na</code> for not applicable, or <code>both</code>.</td>
+</tr>
+<tr>
+<td><code>signature</code></td>
+<td>String</td>
+<td>The EIP-712 compliant signature of the order data, signed by the account.</td>
+</tr>
+</tbody></table>
+
+<p>For order payload, either use</p>
+
+<aside class="notice">
+For order payload, either use
+
+orderType.limit
+Eg:
+```json
+"orderType": {
+  "limit": {
+      "tif": "Alo" | "Ioc" | "Gtc" 
+   }
+}
+```
+or
+
+orderType.trigger
+```json
+"orderType": {
+  "trigger": {
+    "triggerPrice": "Decimal Value (decimal part contain upto 6 decimal values)",
+    "stopLossPrice": "Decimal Value (Optional, only present when tpsl = sl or both) (decimal part contain upto 6 decimal values)",
+    "takeProfitPrice:": "Decimal Value (Optional, only present when tpsl = tp or both) (decimal part contain upto 6 decimal values)",
+    "isMarket": "Boolean",
+    "tpsl": "tp" | "sl" | "na" | "both"
+  }
+}
+```
+</aside>
+
+<aside class="success">
+Each order within the `orders` array should contain the above parameters. The `signature` field is at the root level of the payload and should be a hash of the order payload signature signed by the user's account.
+</aside>
+<h2 id='cancel-order-s'>Cancel Order(s)</h2><div class="highlight"><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="c1"># Example payload for canceling an order
+</span><span class="n">cancel_payload</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s">"type"</span><span class="p">:</span> <span class="s">"cancel"</span><span class="p">,</span>
+  <span class="s">"cancels"</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s">"asset"</span><span class="p">:</span> <span class="s">"BTC"</span><span class="p">,</span>  <span class="c1"># Replace with the actual asset symbol
+</span>      <span class="s">"orderId"</span><span class="p">:</span> <span class="s">"1234567890abcdef"</span>  <span class="c1"># Replace with the actual order ID to cancel
+</span>    <span class="p">}</span>
+    <span class="c1"># Add more objects to cancel multiple orders
+</span>  <span class="p">],</span>
+  <span class="s">"signature"</span><span class="p">:</span> <span class="s">"0xYourOrderSignature"</span>
+<span class="p">}</span>
+
+<span class="c1"># Set up the headers
+</span><span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s">"accept"</span><span class="p">:</span> <span class="s">"application/json"</span><span class="p">,</span>
+  <span class="s">"content-type"</span><span class="p">:</span> <span class="s">"application/json"</span>
+<span class="p">}</span>
+
+<span class="c1"># Make the POST request to cancel orders
+</span><span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="s">'https://api.filament.finance/exchange'</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">cancel_payload</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+
+<span class="c1"># Print the response from the server
+</span><span class="k">print</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">text</span><span class="p">)</span>
+
+</code></pre></div><div class="highlight"><pre class="highlight javascript tab-javascript"><code><span class="c1">// Node.js users will need to require 'node-fetch'. Browser environments can skip this line.</span>
+<span class="kd">const</span> <span class="nx">fetch</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">node-fetch</span><span class="dl">'</span><span class="p">);</span> <span class="c1">// Only for Node.js</span>
+
+<span class="c1">// Example payload for canceling an order</span>
+<span class="kd">const</span> <span class="nx">cancelPayload</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="dl">"</span><span class="s2">type</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">cancel</span><span class="dl">"</span><span class="p">,</span>
+    <span class="dl">"</span><span class="s2">cancels</span><span class="dl">"</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="dl">"</span><span class="s2">asset</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">BTC</span><span class="dl">"</span><span class="p">,</span>  <span class="c1">// Replace with the actual asset symbol</span>
+            <span class="dl">"</span><span class="s2">orderId</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">1234567890abcdef</span><span class="dl">"</span>  <span class="c1">// Replace with the actual order ID to cancel</span>
+        <span class="p">}</span>
+        <span class="c1">// Add more objects to cancel multiple orders</span>
+    <span class="p">],</span>
+    <span class="dl">"</span><span class="s2">signature</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">0xYourOrderSignature</span><span class="dl">"</span>
+<span class="p">};</span>
+
+<span class="c1">// Set up the headers</span>
+<span class="kd">const</span> <span class="nx">headers</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="dl">"</span><span class="s2">accept</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">application/json</span><span class="dl">"</span><span class="p">,</span>
+    <span class="dl">"</span><span class="s2">content-type</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">application/json</span><span class="dl">"</span>
+<span class="p">};</span>
+
+<span class="c1">// Make the POST request to cancel orders</span>
+<span class="nx">fetch</span><span class="p">(</span><span class="dl">'</span><span class="s1">https://api.filament.finance/exchange</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span>
+    <span class="na">method</span><span class="p">:</span> <span class="dl">'</span><span class="s1">POST</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">headers</span><span class="p">:</span> <span class="nx">headers</span><span class="p">,</span>
+    <span class="na">body</span><span class="p">:</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">cancelPayload</span><span class="p">)</span>
+<span class="p">})</span>
+<span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">response</span> <span class="o">=&gt;</span> <span class="nx">response</span><span class="p">.</span><span class="nx">json</span><span class="p">())</span>
+<span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">data</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">))</span>
+<span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="dl">'</span><span class="s1">Error:</span><span class="dl">'</span><span class="p">,</span> <span class="nx">err</span><span class="p">));</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="s2">"ok"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"response"</span><span class="p">:{</span><span class="w">
+    </span><span class="nl">"type"</span><span class="p">:</span><span class="s2">"cancel"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"canceledOrders"</span><span class="p">:[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"orderId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Unique Identifier"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>This endpoint cancel order(s) using the order id.</p>
+
+<aside class="notice">
+Order ids to be used to cancel orders.
+</aside>
+<h3 id='http-request-3'>HTTP Request</h3>
+<p><code>POST https://api.filament.finance/exchange</code></p>
 <h3 id='url-parameters'>URL Parameters</h3>
 <table><thead>
 <tr>
-<th>Parameter</th>
+<th>Payload</th>
+<th>Type</th>
 <th>Description</th>
 </tr>
 </thead><tbody>
 <tr>
-<td>ID</td>
-<td>The ID of the kitten to retrieve</td>
+<td><code>type</code></td>
+<td>String</td>
+<td>Action to cancel orders in orderbook.</td>
+</tr>
+<tr>
+<td><code>asset</code></td>
+<td>String</td>
+<td>The identifier for the token being traded.</td>
+</tr>
+<tr>
+<td><code>orderId</code></td>
+<td>String</td>
+<td>Unique Identifier of orders placed.</td>
+</tr>
+<tr>
+<td><code>signature</code></td>
+<td>String</td>
+<td>The EIP-712 compliant signature of the order data, signed by the account.</td>
 </tr>
 </tbody></table>
-<h2 id='delete-a-specific-kitten'>Delete a Specific Kitten</h2><div class="highlight"><pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
+<h2 id='update-leverage'>Update Leverage</h2><div class="highlight"><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">json</span>
 
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="p">.</span><span class="nf">kittens</span><span class="p">.</span><span class="nf">delete</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</code></pre></div><div class="highlight"><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">kittn</span>
+<span class="c1"># Example payload for updating leverage
+</span><span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s">"type"</span><span class="p">:</span> <span class="s">"updateLeverage"</span><span class="p">,</span>
+  <span class="s">"asset"</span><span class="p">:</span> <span class="s">"ETH"</span><span class="p">,</span>  <span class="c1"># Replace with the actual token identifier
+</span>  <span class="s">"leverage"</span><span class="p">:</span> <span class="s">"5"</span><span class="p">,</span>  <span class="c1"># Replace with the integer value representing new leverage
+</span>  <span class="s">"signature"</span><span class="p">:</span> <span class="s">"0xYourSignature"</span>  <span class="c1"># Replace with the EIP-712 signature
+</span><span class="p">}</span>
 
-<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="p">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="p">.</span><span class="n">kittens</span><span class="p">.</span><span class="n">delete</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</code></pre></div><div class="highlight"><pre class="highlight shell tab-shell"><code>curl <span class="s2">"http://example.com/api/kittens/2"</span> <span class="se">\</span>
-  <span class="nt">-X</span> DELETE <span class="se">\</span>
-  <span class="nt">-H</span> <span class="s2">"Authorization: meowmeowmeow"</span>
-</code></pre></div><div class="highlight"><pre class="highlight javascript tab-javascript"><code><span class="kd">const</span> <span class="nx">kittn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">kittn</span><span class="dl">'</span><span class="p">);</span>
+<span class="c1"># Set up the headers
+</span><span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s">"accept"</span><span class="p">:</span> <span class="s">"application/json"</span><span class="p">,</span>
+  <span class="s">"content-type"</span><span class="p">:</span> <span class="s">"application/json"</span>
+<span class="p">}</span>
 
-<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">kittn</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="dl">'</span><span class="s1">meowmeowmeow</span><span class="dl">'</span><span class="p">);</span>
-<span class="kd">let</span> <span class="nx">max</span> <span class="o">=</span> <span class="nx">api</span><span class="p">.</span><span class="nx">kittens</span><span class="p">.</span><span class="k">delete</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="c1"># Make the POST request
+</span><span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="s">'https://api.filament.finance/exchange'</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">json</span><span class="p">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">payload</span><span class="p">),</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+</code></pre></div><div class="highlight"><pre class="highlight javascript tab-javascript"><code><span class="kd">const</span> <span class="nx">fetch</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">node-fetch</span><span class="dl">'</span><span class="p">);</span> <span class="c1">// Only for Node.js, not needed in modern browsers</span>
+
+<span class="c1">// Example payload for updating leverage</span>
+<span class="kd">const</span> <span class="nx">payload</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="dl">"</span><span class="s2">type</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">updateLeverage</span><span class="dl">"</span><span class="p">,</span>
+    <span class="dl">"</span><span class="s2">asset</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">ETH</span><span class="dl">"</span><span class="p">,</span>  <span class="c1">// Replace with the actual token identifier</span>
+    <span class="dl">"</span><span class="s2">leverage</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">5</span><span class="dl">"</span><span class="p">,</span>  <span class="c1">// Replace with the integer value representing new leverage</span>
+    <span class="dl">"</span><span class="s2">signature</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">0xYourSignature</span><span class="dl">"</span>  <span class="c1">// Replace with the EIP-712 signature</span>
+<span class="p">};</span>
+
+<span class="c1">// Set up the headers</span>
+<span class="kd">const</span> <span class="nx">headers</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="dl">"</span><span class="s2">accept</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">application/json</span><span class="dl">"</span><span class="p">,</span>
+    <span class="dl">"</span><span class="s2">content-type</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">application/json</span><span class="dl">"</span>
+<span class="p">};</span>
+
+<span class="c1">// Make the POST request</span>
+<span class="nx">fetch</span><span class="p">(</span><span class="dl">'</span><span class="s1">https://api.filament.finance/exchange</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span>
+    <span class="na">method</span><span class="p">:</span> <span class="dl">'</span><span class="s1">POST</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">headers</span><span class="p">:</span> <span class="nx">headers</span><span class="p">,</span>
+    <span class="na">body</span><span class="p">:</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">payload</span><span class="p">)</span>
+<span class="p">})</span>
+<span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">response</span> <span class="o">=&gt;</span> <span class="nx">response</span><span class="p">.</span><span class="nx">json</span><span class="p">())</span>
+<span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">data</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">))</span>
+<span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="dl">'</span><span class="s1">Error:</span><span class="dl">'</span><span class="p">,</span> <span class="nx">err</span><span class="p">));</span>
 </code></pre></div>
 <blockquote>
 <p>The above command returns JSON structured like this:</p>
 </blockquote>
 <div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
-  </span><span class="nl">"deleted"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">":("</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre></div>
-<p>This endpoint deletes a specific kitten.</p>
-<h3 id='http-request-3'>HTTP Request</h3>
-<p><code>DELETE http://example.com/kittens/&lt;ID&gt;</code></p>
-<h3 id='url-parameters-2'>URL Parameters</h3>
+<p>This endpoint updates isolated leverage on a coin.</p>
+<h3 id='http-request-4'>HTTP Request</h3>
+<p><code>POST https://api.filament.finance/exchange</code></p>
+<h3 id='url-payload-2'>URL Payload</h3>
 <table><thead>
 <tr>
-<th>Parameter</th>
+<th>Payload</th>
+<th>Type</th>
 <th>Description</th>
 </tr>
 </thead><tbody>
 <tr>
-<td>ID</td>
-<td>The ID of the kitten to delete</td>
+<td><code>type</code></td>
+<td>String</td>
+<td>Action to updateLeverage.</td>
+</tr>
+<tr>
+<td><code>asset</code></td>
+<td>String</td>
+<td>The identifier for the token being traded.</td>
+</tr>
+<tr>
+<td><code>leverage</code></td>
+<td>String</td>
+<td>Integer representing new leverage.</td>
+</tr>
+<tr>
+<td><code>signature</code></td>
+<td>String</td>
+<td>The EIP-712 compliant signature of the order data, signed by the account.</td>
+</tr>
+</tbody></table>
+<h2 id='update-isolated-margin'>Update Isolated margin</h2><div class="highlight"><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="c1"># Example payload for updating leverage
+</span><span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s">"type"</span><span class="p">:</span> <span class="s">"updateIsolatedMargin"</span><span class="p">,</span>
+  <span class="s">"asset"</span><span class="p">:</span> <span class="s">"ETH"</span><span class="p">,</span>  <span class="c1"># Replace with the actual token identifier
+</span>  <span class="s">"isBuy"</span><span class="p">:</span> <span class="s">"true"</span><span class="p">,</span>
+  <span class="s">"ntli"</span><span class="p">:</span> <span class="s">"500.00"</span><span class="p">,</span>  <span class="c1">#  float representing amount to add or remove
+</span>  <span class="s">"signature"</span><span class="p">:</span> <span class="s">"0xYourSignature"</span>  <span class="c1"># Replace with the EIP-712 signature
+</span><span class="p">}</span>
+
+<span class="c1"># Set up the headers
+</span><span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s">"accept"</span><span class="p">:</span> <span class="s">"application/json"</span><span class="p">,</span>
+  <span class="s">"content-type"</span><span class="p">:</span> <span class="s">"application/json"</span>
+<span class="p">}</span>
+
+<span class="c1"># Make the POST request
+</span><span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="s">'https://api.filament.finance/exchange'</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">json</span><span class="p">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">payload</span><span class="p">),</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+</code></pre></div><div class="highlight"><pre class="highlight javascript tab-javascript"><code><span class="kd">const</span> <span class="nx">fetch</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="dl">'</span><span class="s1">node-fetch</span><span class="dl">'</span><span class="p">);</span> <span class="c1">// Only for Node.js, not needed in modern browsers</span>
+
+<span class="c1">// Example payload for updating leverage</span>
+<span class="kd">const</span> <span class="nx">payload</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="dl">"</span><span class="s2">type</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">updateIsolatedMargin</span><span class="dl">"</span><span class="p">,</span>
+    <span class="dl">"</span><span class="s2">asset</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">ETH</span><span class="dl">"</span><span class="p">,</span>  <span class="c1">// Replace with the actual token identifier</span>
+    <span class="dl">"</span><span class="s2">isBuy</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">true</span><span class="dl">"</span><span class="p">,</span>
+     <span class="dl">"</span><span class="s2">ntli</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">500.00</span><span class="dl">"</span><span class="p">,</span>  <span class="c1">//  float representing amount to add or remove</span>
+    <span class="dl">"</span><span class="s2">signature</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">0xYourSignature</span><span class="dl">"</span>  <span class="c1">// Replace with the EIP-712 signature</span>
+<span class="p">};</span>
+
+<span class="c1">// Set up the headers</span>
+<span class="kd">const</span> <span class="nx">headers</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="dl">"</span><span class="s2">accept</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">application/json</span><span class="dl">"</span><span class="p">,</span>
+    <span class="dl">"</span><span class="s2">content-type</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">application/json</span><span class="dl">"</span>
+<span class="p">};</span>
+
+<span class="c1">// Make the POST request</span>
+<span class="nx">fetch</span><span class="p">(</span><span class="dl">'</span><span class="s1">https://api.filament.finance/exchange</span><span class="dl">'</span><span class="p">,</span> <span class="p">{</span>
+    <span class="na">method</span><span class="p">:</span> <span class="dl">'</span><span class="s1">POST</span><span class="dl">'</span><span class="p">,</span>
+    <span class="na">headers</span><span class="p">:</span> <span class="nx">headers</span><span class="p">,</span>
+    <span class="na">body</span><span class="p">:</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">payload</span><span class="p">)</span>
+<span class="p">})</span>
+<span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">response</span> <span class="o">=&gt;</span> <span class="nx">response</span><span class="p">.</span><span class="nx">json</span><span class="p">())</span>
+<span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">data</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">))</span>
+<span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span> <span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="dl">'</span><span class="s1">Error:</span><span class="dl">'</span><span class="p">,</span> <span class="nx">err</span><span class="p">));</span>
+</code></pre></div>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<div class="highlight"><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+<p>This endpoint is to add or remove margin from isolated position.</p>
+<h3 id='http-request-5'>HTTP Request</h3>
+<p><code>POST https://api.filament.finance/exchange</code></p>
+<h3 id='url-payload-3'>URL Payload</h3>
+<table><thead>
+<tr>
+<th>Payload</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>type</code></td>
+<td>String</td>
+<td>Action to updateIsolatedMargin.</td>
+</tr>
+<tr>
+<td><code>asset</code></td>
+<td>String</td>
+<td>The identifier for the token being traded.</td>
+</tr>
+<tr>
+<td><code>isBuy</code></td>
+<td>Boolean</td>
+<td>true/false.</td>
+</tr>
+<tr>
+<td><code>ntli</code></td>
+<td>Float</td>
+<td>Float representing amount to add or remove.</td>
+</tr>
+<tr>
+<td><code>signature</code></td>
+<td>String</td>
+<td>The EIP-712 compliant signature of the order data, signed by the account.</td>
 </tr>
 </tbody></table>
 <h1 id='errors'>Errors</h1>
@@ -588,8 +1319,6 @@ This error section is stored in a separate file in <code>includes/_errors.md</co
       </div>
       <div class="dark-box">
           <div class="lang-selector">
-                <a href="#" data-language-name="rust">rust</a>
-                <a href="#" data-language-name="java">java</a>
                 <a href="#" data-language-name="python">python</a>
                 <a href="#" data-language-name="javascript">javascript</a>
           </div>
