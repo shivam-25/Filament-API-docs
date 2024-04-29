@@ -122,8 +122,6 @@ To generate the signing_key, account_signature and signing_key_signature, you ca
 
 # Signing Orders
 
-To create an order, a signature needs to be generated. This signature allows for the gasless trading experience in Filament. The signature generation used by Filament follows the guideline laid out in the EIP-712 (https://eips.ethereum.org/EIPS/eip-712) . This signing method is widely used and supported in most wallets.
-
 > For authorize example, use this code snippet:
 
 ```python
@@ -303,6 +301,8 @@ async function main() {
 
 main();
 ```
+To create an order, a signature needs to be generated. This signature allows for the gasless trading experience in Filament. The signature generation used by Filament follows the guideline laid out in the EIP-712 (https://eips.ethereum.org/EIPS/eip-712) . This signing method is widely used and supported in most wallets.
+
 <aside class="notice">
 The signature generated for order submission is different from the signature for authentication.
 </aside>
