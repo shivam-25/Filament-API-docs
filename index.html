@@ -452,8 +452,6 @@ Responses are either a JSON object or array.</p>
 
 <p>To generate the signing_key, account_signature and signing_key_signature, you can follow the example code below:</p>
 <h1 id='signing-orders'>Signing Orders</h1>
-<p>To create an order, a signature needs to be generated. This signature allows for the gasless trading experience in Filament. The signature generation used by Filament follows the guideline laid out in the EIP-712 (https://eips.ethereum.org/EIPS/eip-712) . This signing method is widely used and supported in most wallets.</p>
-
 <blockquote>
 <p>For authorize example, use this code snippet:</p>
 </blockquote>
@@ -630,6 +628,8 @@ Responses are either a JSON object or array.</p>
 
 <span class="nx">main</span><span class="p">();</span>
 </code></pre></div>
+<p>To create an order, a signature needs to be generated. This signature allows for the gasless trading experience in Filament. The signature generation used by Filament follows the guideline laid out in the EIP-712 (https://eips.ethereum.org/EIPS/eip-712) . This signing method is widely used and supported in most wallets.</p>
+
 <aside class="notice">
 The signature generated for order submission is different from the signature for authentication.
 </aside>
