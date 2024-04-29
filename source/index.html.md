@@ -307,7 +307,7 @@ To create an order, a signature needs to be generated. This signature allows for
 The signature generated for order submission is different from the signature for authentication.
 </aside>
 
-# Filament
+# API End Points
 
 ## Registers a new account. 
 
